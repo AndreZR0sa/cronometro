@@ -1,4 +1,4 @@
-let segundos = 0;
+let milisegundos = 0;
 let intervalo = null;
 
 const display = document.getElementById('display');
@@ -7,40 +7,41 @@ const pause = document.getElementById('btnPause');
 const reset = document.getElementById('btnReset');
 
 inicio.addEventListener('click', iniciar);
+pause.addEventListener('click', pausar);
+reset.addEventListener('click', reiniciar);
 
 function iniciar() {
-    if(intervalo) return;
+    if (intervalo) return;
 
     intervalo = setInterval(() => {
-        segundos++;
+        milisegundos += 10;
         atualizarDisplay();
-    }, 1000);
+    }, 10);
 }
-
-pause.addEventListener('click', pausar);
 
 function pausar() {
     clearInterval(intervalo);
     intervalo = null;
 }
 
-reset.addEventListener('click', reiniciar);
-
 function reiniciar() {
     pausar();
-    segundos = 0;
+    milisegundos = 0;
     atualizarDisplay();
 }
 
-function formatarTempo(segundosTotais){
-    const minutos = Math.floor(segundosTotais/60);
-    const segundos = segundosTotais % 60;
-    return `${String(minutos).padStart(2,'0')}:${String(segundos).padStart(2,'0')}`;
+function formatarTempo(ms) {
+    const minutos = Math.floor(ms / 60000);
+    const segundos = Math.floor((ms % 60000) / 1000);
+    const centesimos = Math.floor((ms % 1000) / 10);
+    return `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}:${String(centesimos).padStart(2, '0')}`;
 }
 
 function atualizarDisplay() {
-    display.textContent = formatarTempo(segundos);
+    display.textContent = formatarTempo(milisegundos);
+    verificarMinutoParaAnimacao();
 }
+
 
 const botao = document.getElementById("corAleatoria");
 
@@ -51,7 +52,8 @@ function gerarCorAleatoria() {
     "#2a1538",
     "#333333",
     "#152013",
-    "#191c2c" 
+    "#191c2c",
+    "#8B0000"
   ];
   const indiceAleatorio = Math.floor(Math.random() * cores.length);
   return cores[indiceAleatorio];
@@ -60,3 +62,25 @@ function gerarCorAleatoria() {
 botao.addEventListener("click", function() {
   document.body.style.backgroundColor = gerarCorAleatoria();
 });
+
+const nome = prompt("Digite seu nome:");
+
+nomes.innerHTML = nome;
+
+let ultimoMinutoAnimado = 0;
+
+function verificarMinutoParaAnimacao() {
+    const minutoAtual = Math.floor(milisegundos / 60000);
+    if (minutoAtual > 0 && minutoAtual !== ultimoMinutoAnimado) {
+        animarElementos();
+        ultimoMinutoAnimado = minutoAtual;
+    }
+}
+
+function animarElementos() {
+    const elementos = document.querySelectorAll('button'); // ou qualquer seletor que quiser
+    elementos.forEach(el => {
+        el.classList.add('animar');
+        setTimeout(() => el.classList.remove('animar'), 1000); // remove após a animação
+    });
+}
